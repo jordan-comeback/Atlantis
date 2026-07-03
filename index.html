@@ -22,19 +22,25 @@ body {
   color: #eceae4;
   min-height: 100dvh;
   display: flex; flex-direction: column; align-items: center;
-  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: 12px 14px calc(16px + env(safe-area-inset-bottom));
 }
 #bg { position: fixed; inset: 0; z-index: -1; transition: background 1.2s ease; background: #0e0e12; }
-.wrap { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+#reload {
+  position: fixed; top: calc(8px + env(safe-area-inset-top)); right: 10px; z-index: 10;
+  width: 32px; height: 32px; border-radius: 50%; padding: 0;
+  background: rgba(23,23,28,0.7); color: #8f8d86; border: 1px solid #2c2c34;
+  font-size: 16px; line-height: 30px;
+}
+.wrap { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 header { text-align: center; margin-top: 4px; }
 header h1 { font-family: Fraunces, serif; font-weight: 300; font-size: 17px; letter-spacing: 0.14em; color: #8f8d86; text-transform: uppercase; }
 .chord-name {
   font-family: "Cormorant Garamond", serif; font-style: italic; font-weight: 500;
-  font-size: 68px; line-height: 1; color: var(--aura);
+  font-size: 50px; line-height: 1; color: var(--aura);
   letter-spacing: 0.005em;
-  transition: color 0.8s ease; text-align: center; min-height: 70px;
+  transition: color 0.8s ease; text-align: center; min-height: 52px;
 }
-.ring-box { position: relative; width: min(78vw, 320px); aspect-ratio: 1; }
+.ring-box { position: relative; width: min(46vw, 180px); aspect-ratio: 1; }
 svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .dot { cursor: pointer; transition: opacity 0.4s, r 0.3s; }
 .dot-label { font-family: Fraunces, serif; font-size: 13px; pointer-events: none; }
@@ -42,24 +48,17 @@ svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .meter-track { height: 4px; border-radius: 2px; background: #26262c; overflow: hidden; }
 .meter-fill { height: 100%; border-radius: 2px; background: var(--aura); width: 50%; transition: width 0.8s ease, background 0.8s ease; }
 .meter-labels { display: flex; justify-content: space-between; font-size: 12px; color: #8f8d86; margin-top: 6px; }
-.notes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-content: flex-start; min-height: 114px; }
+.notes { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-content: flex-start; min-height: 98px; }
 .note-chip {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 12px; border-radius: 999px;
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 9px; border-radius: 999px;
   background: #1a1a20; border: 1px solid #2c2c34;
-  font-size: 13px;
+  font-size: 12px;
 }
 .note-chip .sw { width: 13px; height: 13px; border-radius: 50%; }
-.note-chip .nm { font-family: Fraunces, serif; font-style: italic; font-size: 15px; }
-.note-chip .hz { color: #8f8d86; font-size: 11px; }
+.note-chip .nm { font-family: Fraunces, serif; font-style: italic; font-size: 13px; }
+.note-chip .hz { color: #8f8d86; font-size: 10px; }
 .controls { display: flex; gap: 10px; width: 100%; max-width: 360px; }
-input[type=text] {
-  flex: 1; min-width: 0; height: 48px; padding: 0 16px;
-  border-radius: 12px; border: 1px solid #2c2c34;
-  background: #17171c; color: #eceae4;
-  font-family: Fraunces, serif; font-size: 18px; outline: none;
-}
-input[type=text]:focus { border-color: var(--aura); }
 button {
   height: 48px; padding: 0 18px; border-radius: 12px;
   border: 1px solid #2c2c34; background: #17171c; color: #eceae4;
@@ -68,7 +67,7 @@ button {
 }
 button:active { transform: scale(0.97); }
 #spectrum {
-  width: min(78vw, 320px); height: 12px; border-radius: 6px;
+  width: min(46vw, 180px); height: 10px; border-radius: 5px;
   border: 1px solid rgba(255,255,255,0.14);
   transition: background 0.8s ease;
 }
@@ -104,13 +103,14 @@ button:active { transform: scale(0.97); }
   background: #17171c; color: #b8b6ae; border: 1px solid #2c2c34;
 }
 #voices button.on { border-color: var(--aura); color: #eceae4; }
-.err { color: #e07a6a; font-size: 13px; min-height: 18px; }
+.err { color: #e07a6a; font-size: 12px; min-height: 0; }
 .hint { font-size: 12px; color: #66645e; text-align: center; line-height: 1.6; max-width: 320px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <div id="bg"></div>
+<button id="reload" aria-label="გადატვირთვა">↻</button>
 <div class="wrap">
   <div class="chord-name" id="chordName">Cmaj7#11</div>
   <div id="spectrum" title="ნოტების ფერები წონების მიხედვით"></div>
@@ -126,10 +126,6 @@ button:active { transform: scale(0.97); }
 
   <div class="notes" id="notes"></div>
 
-  <div class="controls">
-    <input type="text" id="inp" value="" placeholder="Cmaj7#11" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="აკორდის ჩანაწერი">
-    <button id="go">→</button>
-  </div>
   <div class="err" id="err"></div>
 
   <div class="presets" id="voices"></div>
@@ -567,19 +563,31 @@ VOICES.forEach(([id, label]) => {
 
 function playChord(){
   if(!currentNotes.length) return;
+  if(actx && actx.state === "closed") actx = null;
   ensureAudio();
-  if(actx.state === "suspended") actx.resume();
-  const t0 = actx.currentTime + 0.02;
-  currentNotes.forEach((n, i) => {
-    playNote(n.freq, 0.09 * n.w, t0 + i * 0.055);
-  });
-  const c = document.getElementById("core");
-  if(c){ c.classList.remove("pulse"); void c.getBBox; c.classList.add("pulse"); }
+  const go = () => {
+    const t0 = actx.currentTime + 0.03;
+    currentNotes.forEach((n, i) => {
+      playNote(n.freq, 0.09 * n.w, t0 + i * 0.055);
+    });
+    const c = document.getElementById("core");
+    if(c){ c.classList.remove("pulse"); void c.getBBox; c.classList.add("pulse"); }
+  };
+  if(actx.state === "running") go();
+  else actx.resume().then(go, go);
 }
 
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden && actx && actx.state !== "running" && actx.state !== "closed"){
+    actx.resume().catch(() => {});
+  }
+});
+
 document.getElementById("chordName").addEventListener("click", playChord);
-document.getElementById("go").addEventListener("click", () => { renderChordStr(document.getElementById("inp").value); playChord(); });
-document.getElementById("inp").addEventListener("keydown", e => { if(e.key === "Enter"){ e.target.blur(); renderChordStr(e.target.value); playChord(); } });
+document.getElementById("reload").addEventListener("click", () => {
+  try { if(actx) actx.close(); } catch(e){}
+  location.reload();
+});
 
 const pd = document.getElementById("presets");
 const cd = document.getElementById("chorus");
@@ -655,7 +663,6 @@ function makeChip(p, container){
   b.textContent = p;
   b.style.background = chipColor(p);
   b.addEventListener("click", () => {
-    document.getElementById("inp").value = p;
     renderChordStr(p);
     playChord();
     pd.querySelectorAll("button").forEach(x => x.classList.remove("on"));
@@ -712,8 +719,10 @@ function rollPalette(){
   rollChorus();
 }
 
-renderMain(TEMPLATES[0].deg.map(spellDeg(0)), "ტონალობა: C · " + TEMPLATES[0].name);
-renderChorus(CHO_TEMPLATES[0].deg.map(spellDeg(0)), "გადასვლა: C · " + CHO_TEMPLATES[0].label);
+curKey = 11;
+const T0 = TEMPLATES.find(t => t.name.indexOf("გოსპელის") === 0) || TEMPLATES[0];
+renderMain(T0.deg.map(spellDeg(curKey)), "ტონალობა: B · " + T0.name);
+renderChorus(CHO_TEMPLATES[0].deg.map(spellDeg(curKey)), "გადასვლა: B · " + CHO_TEMPLATES[0].label);
 
 render([], "");
 document.getElementById("tabs").innerHTML = "";
